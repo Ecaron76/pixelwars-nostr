@@ -14,7 +14,7 @@ const Grid = ({ size }) => {
   useEffect(() => {
     const connectRelay = async () => {
       try {
-        const relay = await Relay.connect('wss://relay.damus.io'); // Remplacez par l'URL de votre relais
+        const relay = await Relay.connect('wss://nostr.stakey.net'); // Remplacez par l'URL de votre relais
         console.log(`Connected to ${relay.url}`);
 
         const sub = relay.subscribe(
@@ -44,13 +44,20 @@ const Grid = ({ size }) => {
     };
 
     connectRelay();
-  }, [pixels]);
+  }, []);
 
   const handlePixelClick = async (x, y) => {
+    // Vérifie si le pixel est déjà colorié
+    if (pixels[x][y] !== '#FFFFFF') { // Supposant que #FFFFFF est la couleur par défaut non coloriée
+      console.log('Ce pixel est déjà colorié.');
+      return; // Sortir de la fonction sans faire de changement
+    }
+  
+    // Si le pixel n'est pas colorié, continue avec le processus
     const newPixels = [...pixels];
-    newPixels[x][y] = '#000000';
+    newPixels[x][y] = '#FF9900'; // Par exemple, couleur choisie pour la coloration
     setPixels(newPixels);
-
+  
     const eventTemplate = {
       pubkey: publicKey,
       created_at: Math.floor(Date.now() / 1000),
@@ -58,19 +65,20 @@ const Grid = ({ size }) => {
       tags: [],
       content: JSON.stringify({ x, y, color: newPixels[x][y] }),
     };
-
+  
     eventTemplate.id = CryptoJS.SHA256(JSON.stringify(eventTemplate)).toString();
+    
     const signedEvent = finalizeEvent(eventTemplate, privateKey);
-
+    console.log(signedEvent)
+    
     try {
-      const relay = await Relay.connect('wss://relay.damus.io');
-      console.log('Event published:', signedEvent);
+      const relay = await Relay.connect('wss://nostr.stakey.net');
       await relay.publish(signedEvent);
-      
     } catch (err) {
       console.error('Failed to publish event:', err);
     }
   };
+  
 
   return (
     <div className="grid">
