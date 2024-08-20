@@ -1,16 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { generateSecretKey, getPublicKey, finalizeEvent } from 'nostr-tools/pure';
 import { Relay } from 'nostr-tools/relay';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils' // already an installed dependency
+
 import CryptoJS from 'crypto-js';
 
-const privateKey = generateSecretKey();
-const publicKey = getPublicKey(privateKey);
+const loadOrGenerateKeys = () => {
+    let privateKeyHex = localStorage.getItem('privateKey');
+    let privateKey;
+
+    if (!privateKeyHex) {
+        privateKey = generateSecretKey();
+        privateKeyHex = bytesToHex(privateKey);
+        localStorage.setItem('privateKey', privateKeyHex);
+    } else {
+        privateKey = hexToBytes(privateKeyHex);
+    }
+
+    const publicKey = getPublicKey(privateKey);
+
+    console.log(privateKey); 
+
+    return { sk: privateKey, pk: publicKey };
+};
+  
+const { sk, pk } = loadOrGenerateKeys();
+const getColorFromPubkey = (pubkey) => {
+    const hash = CryptoJS.SHA256(pubkey).toString(); // Hash de la clé publique
+    // Utiliser les 6 premiers caractères du hash pour la couleur
+    return `#${hash.slice(0, 6)}`;
+  };
+
+  const userColor = getColorFromPubkey(pk);
+console.log(userColor)
 
 const Grid = ({ size }) => {
+
   const [pixels, setPixels] = useState(
     Array(size).fill().map(() => Array(size).fill('#FFFFFF'))
   );
-
   useEffect(() => {
     const connectRelay = async () => {
       try {
@@ -32,7 +60,7 @@ const Grid = ({ size }) => {
               console.log(event)
             },
             oneose() {
-              sub.close();
+            //   sub.close();
             },
           }
         );
@@ -55,20 +83,20 @@ const Grid = ({ size }) => {
   
     // Si le pixel n'est pas colorié, continue avec le processus
     const newPixels = [...pixels];
-    newPixels[x][y] = '#FF9900'; // Par exemple, couleur choisie pour la coloration
+    newPixels[x][y] = userColor; // Par exemple, couleur choisie pour la coloration
     setPixels(newPixels);
   
     const eventTemplate = {
-      pubkey: publicKey,
+      pubkey: pk,
       created_at: Math.floor(Date.now() / 1000),
       kind: 1,
       tags: [],
       content: JSON.stringify({ x, y, color: newPixels[x][y] }),
     };
   
-    eventTemplate.id = CryptoJS.SHA256(JSON.stringify(eventTemplate)).toString();
+    // eventTemplate.id = CryptoJS.SHA256(JSON.stringify(eventTemplate)).toString();
     
-    const signedEvent = finalizeEvent(eventTemplate, privateKey);
+    const signedEvent = finalizeEvent(eventTemplate, sk);
     console.log(signedEvent)
     
     try {
