@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { generateSecretKey, getPublicKey, finalizeEvent } from 'nostr-tools/pure';
 import { Relay } from 'nostr-tools/relay';
@@ -35,6 +37,10 @@ const Grid = ({ size, username }) => {
     const [pixels, setPixels] = useState(
         Array(size).fill().map(() => Array(size).fill({ color: '#FFFFFF', timestamp: 0 }))
     );
+    const [playerCells, setPlayerCells] = useState(() => {
+      // Charger le nombre de cases remplies depuis le Local Storage
+      return parseInt(localStorage.getItem('playerCells'), 10) || 0;
+    });
 
     useEffect(() => {
         const connectRelay = async () => {
@@ -80,7 +86,11 @@ const Grid = ({ size, username }) => {
         const newPixels = [...pixels];
         newPixels[x][y] = { color: userColor, timestamp };
         setPixels(newPixels);
-
+        setPlayerCells(prev => {
+          const newCount = prev + 1;
+          localStorage.setItem('playerCells', newCount); // Sauvegarder dans le localStorage
+          return newCount;
+        });
         const eventTemplate = {
             pubkey: pk,
             created_at: timestamp,
@@ -101,19 +111,29 @@ const Grid = ({ size, username }) => {
     };
 
     return (
-        <div className="grid">
-            {pixels.map((row, x) =>
-                row.map((pixel, y) => (
-                    <div
-                        key={`${x}-${y}`}
-                        className="pixel"
-                        style={{ backgroundColor: pixel.color, width: '20px', height: '20px', border: '1px solid #ddd' }}
-                        onClick={() => handlePixelClick(x, y)}
-                    />
-                ))
-            )}
-        </div>
+        
+        <div>
+      <h3>Joueur connecté : {username}</h3>
+      <div className="player-info">
+        <p>
+          Cases remplies : {playerCells}
+        </p>
+      </div>
+      <div className="grid">
+        {pixels.map((row, x) =>
+          row.map((pixel, y) => (
+            <div
+              key={`${x}-${y}`}
+              className="pixel"
+              style={{ backgroundColor: pixel.color, width: '20px', height: '20px', border: '1px solid #ddd' }}
+              onClick={() => handlePixelClick(x, y)}
+            />
+          ))
+        )}
+      </div>
+      
+    </div>
     );
-};
+  }
 
 export default Grid;
