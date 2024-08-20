@@ -20,8 +20,6 @@ const loadOrGenerateKeys = () => {
 
     const publicKey = getPublicKey(privateKey);
 
-    console.log(privateKey); 
-
     return { sk: privateKey, pk: publicKey };
 };
   
