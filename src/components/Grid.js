@@ -7,7 +7,7 @@ import CryptoJS from 'crypto-js';
 const privateKey = generateSecretKey();
 const publicKey = getPublicKey(privateKey);
 
-const Grid = ({ size }) => {
+const Grid = ({ size, username }) => {
   const [relay, setRelay] = useState()
   const [pixels, setPixels] = useState(
     Array(size).fill().map(() => Array(size).fill('#FFFFFF'))
@@ -68,6 +68,7 @@ const Grid = ({ size }) => {
         ["t", "cesipixelwar"] // Correct format for a tag
       ],
       content: JSON.stringify({ x, y, color: newPixels[x][y] }),
+      other: {}
     };
   
     eventTemplate.id = CryptoJS.SHA256(JSON.stringify(eventTemplate)).toString();
