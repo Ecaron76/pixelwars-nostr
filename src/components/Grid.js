@@ -5,6 +5,7 @@ import { bytesToHex, hexToBytes } from '@noble/hashes/utils' // already an insta
 
 import CryptoJS from 'crypto-js';
 
+
 const loadOrGenerateKeys = () => {
     let privateKeyHex = localStorage.getItem('privateKey');
     let privateKey;
@@ -34,7 +35,8 @@ const getColorFromPubkey = (pubkey) => {
   const userColor = getColorFromPubkey(pk);
 console.log(userColor)
 
-const Grid = ({ size }) => {
+const Grid = ({ size, username }) => {
+  const [relay, setRelay] = useState()
 
   const [pixels, setPixels] = useState(
     Array(size).fill().map(() => Array(size).fill('#FFFFFF'))
@@ -42,13 +44,12 @@ const Grid = ({ size }) => {
   useEffect(() => {
     const connectRelay = async () => {
       try {
-        const relay = await Relay.connect('wss://nostr.stakey.net'); // Remplacez par l'URL de votre relais
-        console.log(`Connected to ${relay.url}`);
-
-        const sub = relay.subscribe(
+        const _relay = await Relay.connect('wss://relay.damus.io');
+        _relay.subscribe(
           [
             {
               kinds: [1], 
+              "#t": ["cesipixelwar"],
             },
           ],
           {
@@ -60,14 +61,14 @@ const Grid = ({ size }) => {
               console.log(event)
             },
             oneose() {
-            //   sub.close();
+              // sub.close();
             },
           }
         );
 
-        return relay;
+        setRelay(_relay)
       } catch (error) {
-        console.error("Failed to connect to the relay:", error);
+        console.error("Failed to connect to the relay:", error.message);
       }
     };
 
@@ -85,13 +86,17 @@ const Grid = ({ size }) => {
     const newPixels = [...pixels];
     newPixels[x][y] = userColor; // Par exemple, couleur choisie pour la coloration
     setPixels(newPixels);
-  
+
+    
     const eventTemplate = {
       pubkey: pk,
       created_at: Math.floor(Date.now() / 1000),
       kind: 1,
-      tags: [],
+      tags: [
+        ["t", "cesipixelwar"] // Correct format for a tag
+      ],
       content: JSON.stringify({ x, y, color: newPixels[x][y] }),
+      other: {}
     };
   
     // eventTemplate.id = CryptoJS.SHA256(JSON.stringify(eventTemplate)).toString();
@@ -100,8 +105,8 @@ const Grid = ({ size }) => {
     console.log(signedEvent)
     
     try {
-      const relay = await Relay.connect('wss://nostr.stakey.net');
       await relay.publish(signedEvent);
+      console.log('Event published:', signedEvent);
     } catch (err) {
       console.error('Failed to publish event:', err);
     }
