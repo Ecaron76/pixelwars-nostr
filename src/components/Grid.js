@@ -17,7 +17,7 @@ const Grid = ({ size }) => {
     const connectRelay = async () => {
       try {
         const _relay = await Relay.connect('wss://relay.damus.io');
-        const sub = _relay.subscribe(
+        _relay.subscribe(
           [
             {
               kinds: [1], 
