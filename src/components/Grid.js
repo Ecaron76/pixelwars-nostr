@@ -5,6 +5,7 @@ import { generateSecretKey, getPublicKey, finalizeEvent } from 'nostr-tools/pure
 import { Relay } from 'nostr-tools/relay';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 import CryptoJS from 'crypto-js';
+import { countScoreByUser } from '../utils';
 
 const loadOrGenerateKeys = () => {
     let privateKeyHex = localStorage.getItem('privateKey');
@@ -61,6 +62,7 @@ const Grid = ({ size, username }) => {
                             const { x, y, color } = JSON.parse(event.content);
                             const eventTimestamp = event.created_at;
                             const pixel = pixels[x][y];
+
 
                             // Met à jour le pixel seulement si l'événement est plus récent
                             if (eventTimestamp > pixel.timestamp) {
@@ -127,7 +129,7 @@ const Grid = ({ size, username }) => {
     };
 
 
-    return (
+return( 
         
         <div>
       <h3>Joueur connecté : {username}</h3>
