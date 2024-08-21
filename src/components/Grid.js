@@ -34,6 +34,7 @@ const getColorFromPubkey = (pubkey) => {
   const userColor = getColorFromPubkey(pk);
 
 const Grid = ({ size, username }) => {
+  const scores = useRef({})
   let relays = ['wss://relay.example.com', 'wss://relay.example2.com']
   const pool = new SimplePool()
     const [relay, setRelay] = useState();
@@ -46,6 +47,7 @@ const Grid = ({ size, username }) => {
       return parseInt(localStorage.getItem('playerCells'), 10) || 0;
     });
 
+
     useEffect(() => {
         const connectRelay = async () => {
             try {
@@ -54,7 +56,7 @@ const Grid = ({ size, username }) => {
                     [
                         {
                             kinds: [1],
-                            "#t": ["cesipixelwar"],
+                            "#t": ["cesipixelwar5"],
                         },
                     ],
                     {
@@ -62,17 +64,29 @@ const Grid = ({ size, username }) => {
                             const { x, y, color } = JSON.parse(event.content);
                             const eventTimestamp = event.created_at;
                             const pixel = pixels[x][y];
+                         
+                            const newScores = {...scores}
 
+                            // const user = event.pubkey
+                            // if(!scores.current[user]) {
+                            //   scores.current[user] = {count: 0, color}
+                            // }
+                            // scores.current[user].count = scores.current[user].count + 1
 
                             // Met à jour le pixel seulement si l'événement est plus récent
                             if (eventTimestamp > pixel.timestamp) {
+                              if(x ==0 && y ==0){
+                                console.log(event.tags[0][2])
+                              }
                                 const newPixels = [...pixels];
-                                newPixels[x][y] = { color, timestamp: eventTimestamp };
+                                newPixels[x][y] = { color, timestamp: eventTimestamp, username: event.tags[0][2]};
                                 setPixels(newPixels);
                             }
                         },
                         oneose() {
                             // Handle close event
+                            console.log("ALERTTTTTTTTTTTTTTTTTTTTTT")
+                            console.log(scores)
                         },
                     }
                 );
@@ -89,10 +103,12 @@ const Grid = ({ size, username }) => {
 
 
     const handlePixelClick = async (x, y) => {
+    
+   
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-         timeoutRef.current = setTimeout(async () => {
+       //  timeoutRef.current = setTimeout(async () => {
           const timestamp = Math.floor(Date.now() / 1000)
             const newPixels = [...pixels];
             newPixels[x][y] = {color: userColor, timestamp}; // Par exemple, couleur choisie pour la coloration
@@ -108,7 +124,7 @@ const Grid = ({ size, username }) => {
               created_at: Math.floor(Date.now() / 1000),
               kind: 1,
               tags: [
-                ["t", "cesipixelwar"] // Correct format for a tag
+                ["t", "cesipixelwar5", "geoff"]
               ],
               content: JSON.stringify({ x, y, color: newPixels[x][y].color }),
             };
@@ -125,19 +141,39 @@ const Grid = ({ size, username }) => {
               console.error('Failed to publish event:', err);
             }
             timeoutRef.current = null;
-          }, 10); 
+         // }, 10); 
     };
 
-
+    const getPixelCounts = (_pixels) => {
+       return _pixels.reduce((acc, row, index)=> {
+            row.forEach((cel) => {
+              const user = cel.color
+              if(!acc[user])acc[user] = {count: 0, color: cel.color, username: cel.username}
+              acc[user].count = acc[user].count + 1
+            })
+            return acc
+        }, {})
+    }
+    
 return( 
         
         <div>
+                  
+{Object.entries(getPixelCounts(pixels)).map(([user, values]) => (
+  <div style={{ display: "flex", alignItems: "center", marginBottom: "5px" }}>
+    <div style={{ backgroundColor: values.color, width: '20px', height: '20px', border: '1px solid #ddd', marginRight: '5px' }}></div>
+    <span style={{ fontSize: '16px', fontWeight: 'bold' }}> {values.username} score: {values.count}</span>
+    <span style={{ fontSize: '16px', fontWeight: 'bold' }}></span>
+  </div>
+))}
+        
       <h3>Joueur connecté : {username}</h3>
       <div className="player-info">
         <p>
           Cases remplies : {playerCells}
         </p>
       </div>
+
       <div className="grid">
         {pixels.map((row, x) =>
           row.map((pixel, y) => (
