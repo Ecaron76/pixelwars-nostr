@@ -56,7 +56,7 @@ const Grid = ({ size, username }) => {
                     [
                         {
                             kinds: [1],
-                            "#t": ["cesipixelwar5"],
+                            "#t": ["cesipixelwar"],
                         },
                     ],
                     {
@@ -124,7 +124,7 @@ const Grid = ({ size, username }) => {
               created_at: Math.floor(Date.now() / 1000),
               kind: 1,
               tags: [
-                ["t", "cesipixelwar5", "geoff"]
+                ["t", "cesipixelwar", username]
               ],
               content: JSON.stringify({ x, y, color: newPixels[x][y].color }),
             };
