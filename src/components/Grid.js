@@ -56,7 +56,7 @@ const Grid = ({ size, username }) => {
                     [
                         {
                             kinds: [1],
-                            "#t": ["cesipixelwar5"],
+                            "#t": ["cesipixelwar"],
                         },
                     ],
                     {
@@ -108,7 +108,7 @@ const Grid = ({ size, username }) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-       //  timeoutRef.current = setTimeout(async () => {
+         timeoutRef.current = setTimeout(async () => {
           const timestamp = Math.floor(Date.now() / 1000)
             const newPixels = [...pixels];
             newPixels[x][y] = {color: userColor, timestamp}; // Par exemple, couleur choisie pour la coloration
@@ -124,7 +124,7 @@ const Grid = ({ size, username }) => {
               created_at: Math.floor(Date.now() / 1000),
               kind: 1,
               tags: [
-                ["t", "cesipixelwar5", "geoff"]
+                ["t", "cesipixelwar", username]
               ],
               content: JSON.stringify({ x, y, color: newPixels[x][y].color }),
             };
@@ -141,7 +141,7 @@ const Grid = ({ size, username }) => {
               console.error('Failed to publish event:', err);
             }
             timeoutRef.current = null;
-         // }, 10); 
+          }, 500); 
     };
 
     const getPixelCounts = (_pixels) => {
