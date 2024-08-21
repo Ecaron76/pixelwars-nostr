@@ -45,7 +45,7 @@ const Grid = ({ size, username }) => {
     useEffect(() => {
         const connectRelay = async () => {
             try {
-                const _relay = await Relay.connect('wss://relay.damus.io');
+                const _relay = await Relay.connect('wss://longhorn.bgp.rodeo');
                 _relay.subscribe(
                     [
                         {
