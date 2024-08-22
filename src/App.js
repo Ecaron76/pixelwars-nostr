@@ -3,7 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import Grid from "./components/Grid2";
+import Grid from "./components/Grid";
+import Grid2 from "./components/Grid2";
 import UsernameInput from "./components/InputName";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
       ) : (
         <Grid username={submittedUsername} size={10} />
       )}
+      <Grid2 username={submittedUsername} size={10}/>
     </div>
   );
 }

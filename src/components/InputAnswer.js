@@ -14,7 +14,7 @@ const InputAnswer = ({ answer, setAnswer, onSubmit }) => {
   };
 
   return (
-    <div>
+    <div style={{marginBottom: 20}}>
       <form onSubmit={handleSubmit}>
         <label>
           User name:
