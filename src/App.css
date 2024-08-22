@@ -11,6 +11,17 @@
   margin-top: 50px;
 }
 
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(10, 20px);
+  grid-template-rows: repeat(10, 20px);
+  gap: 1px;
+  justify-content: center;
+  margin-top: 50px;
+  background-color: blue;
+  position: relative;
+}
+
 .pixel {
   width: 20px;
   height: 20px;

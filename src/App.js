@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import Grid from "./components/Grid";
+import Grid from "./components/Grid2";
 import UsernameInput from "./components/InputName";
 
 function App() {
